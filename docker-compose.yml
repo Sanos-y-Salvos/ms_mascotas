@@ -1,0 +1,73 @@
+services:
+  ms-mascotas:
+    image: lucianobc/ms-mascotas:latest
+    # build: .
+    container_name: ms-mascotas
+    restart: unless-stopped
+    ports:
+      - '3003:3003'
+    environment:
+      PORT: 3003
+      NODE_ENV: development
+      DB_HOST: postgres-mascotas
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: ms_mascotas
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_EXCHANGE: sanos_y_salvos_events
+      JWT_SECRET: supersecreto_cambiar_en_produccion
+      UPLOAD_DIR: uploads
+      MAX_FILE_SIZE_MB: 5
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres-mascotas:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - sanos-y-salvos-net
+
+  postgres-mascotas:
+    image: postgres:15-alpine
+    container_name: postgres-mascotas
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ms_mascotas
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg_mascotas_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sanos-y-salvos-net
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sanos-y-salvos-net
+
+volumes:
+  pg_mascotas_data:
+  uploads_data:
+
+networks:
+  sanos-y-salvos-net:
+    driver: bridge

@@ -1,0 +1,4 @@
+docker build -t lucianobc/ms-mascotas:1.0.0 .
+docker tag lucianobc/ms-mascotas:1.0.0 lucianobc/ms-mascotas:latest
+docker push lucianobc/ms-mascotas:1.0.0
+docker push lucianobc/ms-mascotas:latest
