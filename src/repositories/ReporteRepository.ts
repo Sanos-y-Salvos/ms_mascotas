@@ -15,8 +15,34 @@ export class ReporteRepository implements IReporteRepository {
     return this.repo.save(reporte);
   }
 
+  async buscarPorId(id: string): Promise<Reporte | null> {
+    return this.repo.findOne({ where: { id }, relations: ['fotos'] });
+  }
+
+  async listar(filtros: FiltrosReporte = {}): Promise<Reporte[]> {
+    const query = this.repo.createQueryBuilder('r').leftJoinAndSelect('r.fotos', 'fotos');
+
+    if (filtros.tipo) {
+      query.andWhere('r.tipo = :tipo', { tipo: filtros.tipo });
+    }
+    if (filtros.estado) {
+      query.andWhere('r.estado = :estado', { estado: filtros.estado });
+    }
+    if (filtros.raza) {
+      query.andWhere('LOWER(r.raza) LIKE LOWER(:raza)', { raza: `%${filtros.raza}%` });
+    }
+    if (filtros.color) {
+      query.andWhere('LOWER(r.color) LIKE LOWER(:color)', { color: `%${filtros.color}%` });
+    }
+    if (filtros.usuarioId) {
+      query.andWhere('r.usuarioId = :usuarioId', { usuarioId: filtros.usuarioId });
+    }
+
+    return query.orderBy('r.fechaPublicacion', 'DESC').getMany();
+  }
+
   async actualizar(id: string, datos: Partial<Reporte>): Promise<Reporte | null> {
-  await this.repo.update(id, datos);
-  return this.buscarPorId(id);
-}
+    await this.repo.update(id, datos);
+    return this.buscarPorId(id);
+  }
 }
