@@ -1,29 +1,41 @@
-import { ReporteService } from "../services/ReporteService";
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import createError from 'http-errors';
-import { EstadoReporte, TipoReporte } from "../entities/Reporte";
-
+import { ReporteService } from '../services/ReporteService';
+import { TipoReporte, EstadoReporte, TamanioMascota } from '../entities/Reporte';
 
 export class ReporteController {
-  constructor(private readonly service: ReporteService) { }
+  constructor(private readonly service: ReporteService) {}
 
+  /** POST /reportes */
   crear = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       this.validarRequest(req);
       const archivos = (req.files as Express.Multer.File[]) ?? [];
-      const reporte = await this.service.crearReporte({ ...req.body, usuarioId: req.usuario!.sub }, archivos);
+
+      const reporte = await this.service.crearReporte(
+        {
+          nombreMascota: req.body.nombreMascota,
+          raza: req.body.raza,
+          color: req.body.color,
+          tamanio: req.body.tamanio as TamanioMascota,
+          tipo: req.body.tipo as TipoReporte,
+          ubicacionLatitud: parseFloat(req.body.ubicacionLatitud),
+          ubicacionLongitud: parseFloat(req.body.ubicacionLongitud),
+          direccionReferencia: req.body.direccionReferencia,
+          descripcion: req.body.descripcion,
+          usuarioId: req.usuario!.sub,
+        },
+        archivos
+      );
+
       res.status(201).json({ data: reporte });
     } catch (err) {
       next(err);
     }
   };
 
-  private validarRequest(req: Request): void {
-    const errores = validationResult(req);
-    if (!errores.isEmpty()) throw createError(400, 'Datos inválidos', { errors: errores.array() });
-  }
-
+  /** GET /reportes */
   listar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       this.validarRequest(req);
@@ -40,6 +52,7 @@ export class ReporteController {
     }
   };
 
+  /** GET /reportes/:id */
   obtener = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const reporte = await this.service.obtenerReporte(req.params.id);
@@ -49,6 +62,7 @@ export class ReporteController {
     }
   };
 
+  /** PUT /reportes/:id */
   editar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const archivos = (req.files as Express.Multer.File[]) ?? [];
@@ -64,6 +78,7 @@ export class ReporteController {
     }
   };
 
+  /** PATCH /reportes/:id/estado */
   cambiarEstado = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       this.validarRequest(req);
@@ -79,4 +94,22 @@ export class ReporteController {
       next(err);
     }
   };
+
+  /** DELETE /reportes/:id */
+  eliminar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const esModerador = ['MODERADOR', 'ADMIN'].includes(req.usuario!.rol);
+      await this.service.eliminarReporte(req.params.id, req.usuario!.sub, esModerador);
+      res.status(204).send();
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  private validarRequest(req: Request): void {
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      throw createError(400, 'Datos inválidos', { errors: errores.array() });
+    }
+  }
 }
