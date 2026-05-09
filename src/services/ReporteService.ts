@@ -73,4 +73,27 @@ export class ReporteService {
 
     return this.obtenerReporte(id);
   }
+
+  async cambiarEstado(
+    id: string,
+    estado: EstadoReporte,
+    usuarioId: string,
+    esModerador: boolean
+  ): Promise<Reporte> {
+    const existente = await this.obtenerReporte(id);
+
+    if (!esModerador) {
+      this.verificarPropietario(existente, usuarioId);
+    }
+
+    const actualizado = await this.repo.cambiarEstado(id, estado);
+    if (!actualizado) throw createError(500, 'Error al cambiar estado');
+
+    await mensajeriaService.publicar(EVENTOS.REPORTE_ESTADO_CAMBIADO, {
+      reporteId: id,
+      estado,
+    });
+
+    return actualizado;
+  }
 }

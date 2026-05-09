@@ -21,3 +21,4 @@ router.post('/', authMiddleware, upload.array('fotos', 5), validarCrearReporte, 
 router.get('/', authMiddleware, validarFiltros, ctrl.listar);
 router.get('/:id', authMiddleware, ctrl.obtener);
 router.put('/:id', authMiddleware, upload.array('fotos', 5), ctrl.editar);
+router.patch('/:id/estado', authMiddleware, validarCambiarEstado, ctrl.cambiarEstado);
