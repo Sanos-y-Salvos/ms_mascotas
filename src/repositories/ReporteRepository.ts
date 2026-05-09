@@ -3,6 +3,10 @@ import { AppDataSource } from '../config/database';
 import { Reporte, EstadoReporte, TipoReporte } from '../entities/Reporte';
 import { FiltrosReporte, IReporteRepository } from './IReporteRepository';
 
+/**
+ * Implementación concreta de IReporteRepository usando TypeORM.
+ * Es la única clase del microservicio que conoce la base de datos directamente.
+ */
 export class ReporteRepository implements IReporteRepository {
   private readonly repo: Repository<Reporte>;
 
@@ -45,8 +49,14 @@ export class ReporteRepository implements IReporteRepository {
     await this.repo.update(id, datos);
     return this.buscarPorId(id);
   }
+
   async cambiarEstado(id: string, estado: EstadoReporte): Promise<Reporte | null> {
     await this.repo.update(id, { estado });
     return this.buscarPorId(id);
+  }
+
+  async eliminar(id: string): Promise<boolean> {
+    const resultado = await this.repo.delete(id);
+    return (resultado.affected ?? 0) > 0;
   }
 }
