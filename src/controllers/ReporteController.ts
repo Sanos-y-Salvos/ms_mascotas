@@ -22,4 +22,19 @@ export class ReporteController {
     const errores = validationResult(req);
     if (!errores.isEmpty()) throw createError(400, 'Datos inválidos', { errors: errores.array() });
   }
+
+  editar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const archivos = (req.files as Express.Multer.File[]) ?? [];
+    const reporte = await this.service.editarReporte(
+      req.params.id,
+      req.body,
+      req.usuario!.sub,
+      archivos
+    );
+    res.json({ data: reporte });
+  } catch (err) {
+    next(err);
+  }
+};
 }

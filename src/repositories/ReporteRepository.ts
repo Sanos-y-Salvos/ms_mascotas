@@ -14,4 +14,9 @@ export class ReporteRepository implements IReporteRepository {
     const reporte = this.repo.create(datos);
     return this.repo.save(reporte);
   }
+
+  async actualizar(id: string, datos: Partial<Reporte>): Promise<Reporte | null> {
+  await this.repo.update(id, datos);
+  return this.buscarPorId(id);
+}
 }
