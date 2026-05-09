@@ -10,4 +10,5 @@ export interface FiltrosReporte {
 
 export interface IReporteRepository {
   crear(reporte: Partial<Reporte>): Promise<Reporte>;
+  actualizar(id: string, datos: Partial<Reporte>): Promise<Reporte | null>;
 }

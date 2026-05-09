@@ -18,3 +18,5 @@ const service = new ReporteService(repo);
 const ctrl = new ReporteController(service);
 
 router.post('/', authMiddleware, upload.array('fotos', 5), validarCrearReporte, ctrl.crear);
+
+router.put('/:id', authMiddleware, upload.array('fotos', 5), ctrl.editar);
