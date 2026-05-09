@@ -63,4 +63,20 @@ export class ReporteController {
       next(err);
     }
   };
+
+  cambiarEstado = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      this.validarRequest(req);
+      const esModerador = ['MODERADOR', 'ADMIN'].includes(req.usuario!.rol);
+      const reporte = await this.service.cambiarEstado(
+        req.params.id,
+        req.body.estado as EstadoReporte,
+        req.usuario!.sub,
+        esModerador
+      );
+      res.json({ data: reporte });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

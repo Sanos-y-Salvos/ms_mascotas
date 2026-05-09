@@ -45,4 +45,8 @@ export class ReporteRepository implements IReporteRepository {
     await this.repo.update(id, datos);
     return this.buscarPorId(id);
   }
+  async cambiarEstado(id: string, estado: EstadoReporte): Promise<Reporte | null> {
+    await this.repo.update(id, { estado });
+    return this.buscarPorId(id);
+  }
 }
