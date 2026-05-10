@@ -1,9 +1,11 @@
 import { body, query, param } from 'express-validator';
-import { TipoReporte, TamanioMascota, EstadoReporte } from '../entities/Reporte';
+import { TipoReporte, TamanioMascota, EstadoReporte, EspecieMascota } from '../entities/Reporte';
 
 export const validarCrearReporte = [
   body('nombreMascota').trim().notEmpty().withMessage('El nombre de la mascota es requerido'),
-  body('raza').trim().notEmpty().withMessage('La raza es requerida'),
+  body('especie')
+  .isIn(Object.values(EspecieMascota))
+  .withMessage(`Especie debe ser: ${Object.values(EspecieMascota).join(', ')}`),,
   body('color').trim().notEmpty().withMessage('El color es requerido'),
   body('tamanio')
     .isIn(Object.values(TamanioMascota))
@@ -27,7 +29,7 @@ export const validarCrearReporte = [
 export const validarFiltros = [
   query('tipo').optional().isIn(Object.values(TipoReporte)),
   query('estado').optional().isIn(Object.values(EstadoReporte)),
-  query('raza').optional().trim(),
+ query('especie').optional().isIn(Object.values(EspecieMascota)),,
   query('color').optional().trim(),
 ];
 

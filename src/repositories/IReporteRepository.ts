@@ -3,7 +3,7 @@ import { Reporte, EstadoReporte, TipoReporte } from '../entities/Reporte';
 export interface FiltrosReporte {
   tipo?: TipoReporte;
   estado?: EstadoReporte;
-  raza?: string;
+  especie?: EspecieMascota;
   color?: string;
   usuarioId?: string;
 }

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import createError from 'http-errors';
 import { ReporteService } from '../services/ReporteService';
-import { TipoReporte, EstadoReporte, TamanioMascota } from '../entities/Reporte';
+import { TipoReporte, EstadoReporte, TamanioMascota, EspecieMascota } from '../entities/Reporte';
 
 export class ReporteController {
   constructor(private readonly service: ReporteService) {}
@@ -16,7 +16,7 @@ export class ReporteController {
       const reporte = await this.service.crearReporte(
         {
           nombreMascota: req.body.nombreMascota,
-          raza: req.body.raza,
+          especie: req.body.especie as EspecieMascota,
           color: req.body.color,
           tamanio: req.body.tamanio as TamanioMascota,
           tipo: req.body.tipo as TipoReporte,
@@ -42,7 +42,7 @@ export class ReporteController {
       const reportes = await this.service.listarReportes({
         tipo: req.query.tipo as TipoReporte | undefined,
         estado: req.query.estado as EstadoReporte | undefined,
-        raza: req.query.raza as string | undefined,
+        especie: req.query.especie as EspecieMascota | undefined,
         color: req.query.color as string | undefined,
         usuarioId: req.query.usuarioId as string | undefined,
       });

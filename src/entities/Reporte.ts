@@ -27,6 +27,16 @@ export enum TamanioMascota {
   GRANDE = 'GRANDE',
 }
 
+export enum EspecieMascota {
+  PERRO = 'PERRO',
+  GATO = 'GATO',
+  AVE = 'AVE',
+  CONEJO = 'CONEJO',
+  HAMSTER = 'HAMSTER',
+  REPTIL = 'REPTIL',
+  OTRO = 'OTRO',
+}
+
 @Entity('reportes')
 export class Reporte {
   @PrimaryGeneratedColumn('uuid')
@@ -35,8 +45,8 @@ export class Reporte {
   @Column({ length: 100 })
   nombreMascota!: string;
 
-  @Column({ length: 100 })
-  raza!: string;
+  @Column({ type: 'enum', enum: EspecieMascota })
+  especie!: EspecieMascota;
 
   @Column({ length: 100 })
   color!: string;

@@ -32,8 +32,8 @@ export class ReporteRepository implements IReporteRepository {
     if (filtros.estado) {
       query.andWhere('r.estado = :estado', { estado: filtros.estado });
     }
-    if (filtros.raza) {
-      query.andWhere('LOWER(r.raza) LIKE LOWER(:raza)', { raza: `%${filtros.raza}%` });
+    if (filtros.especie) {
+      query.andWhere('r.especie = :especie', { especie: filtros.especie });
     }
     if (filtros.color) {
       query.andWhere('LOWER(r.color) LIKE LOWER(:color)', { color: `%${filtros.color}%` });
