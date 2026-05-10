@@ -1,4 +1,4 @@
-import { Reporte, EstadoReporte, TipoReporte } from '../entities/Reporte';
+import { Reporte, EstadoReporte, TipoReporte, EspecieMascota } from '../entities/Reporte';
 
 export interface FiltrosReporte {
   tipo?: TipoReporte;
