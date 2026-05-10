@@ -45,7 +45,7 @@ export class ReporteService {
       reporteId: reporte.id,
       tipo: reporte.tipo,
       nombreMascota: reporte.nombreMascota,
-      raza: reporte.raza,
+      especie: reporte.especie,
       color: reporte.color,
       tamanio: reporte.tamanio,
       ubicacionLatitud: reporte.ubicacionLatitud,

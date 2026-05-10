@@ -6,13 +6,14 @@
 CREATE TYPE tipo_reporte   AS ENUM ('PERDIDA', 'ENCONTRADA');
 CREATE TYPE estado_reporte AS ENUM ('EN_BUSQUEDA', 'RESUELTO', 'ABANDONADO', 'OCULTO');
 CREATE TYPE tamanio_mascota AS ENUM ('PEQUEÑO', 'MEDIANO', 'GRANDE');
+CREATE TYPE especie_mascota AS ENUM ('PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO');
 
 -- ── Tabla principal ────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS reportes (
     id                   UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre_mascota       VARCHAR(100)    NOT NULL,
-    raza                 VARCHAR(100)    NOT NULL,
+    especie              especie_mascota NOT NULL,
     color                VARCHAR(100)    NOT NULL,
     tamanio              tamanio_mascota NOT NULL,
     tipo                 tipo_reporte    NOT NULL,

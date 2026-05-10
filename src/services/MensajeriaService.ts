@@ -11,7 +11,7 @@ export interface EventoReporteCreado {
   reporteId: string;
   tipo: string;
   nombreMascota: string;
-  raza: string;
+  especie: string;  
   color: string;
   tamanio: string;
   ubicacionLatitud: number;

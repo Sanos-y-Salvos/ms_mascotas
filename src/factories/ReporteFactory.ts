@@ -1,17 +1,18 @@
-import { Reporte, TipoReporte, EstadoReporte, TamanioMascota } from '../entities/Reporte';
+import { Reporte, TipoReporte, EstadoReporte, TamanioMascota, EspecieMascota } from '../entities/Reporte';
 
 /**
  * DTO base con los campos obligatorios para crear cualquier reporte.
  */
 export interface DatosReporteBase {
   nombreMascota: string;
-  raza: string;
+  especie: EspecieMascota; 
   color: string;
   tamanio: TamanioMascota;
   ubicacionLatitud: number;
   ubicacionLongitud: number;
   direccionReferencia?: string;
   descripcion?: string;
+  codigoChip?: string;
   usuarioId: string;
 }
 
@@ -56,4 +57,6 @@ export class ReporteFactory {
         throw new Error(`Tipo de reporte desconocido: ${tipo}`);
     }
   }
+
+  
 }
