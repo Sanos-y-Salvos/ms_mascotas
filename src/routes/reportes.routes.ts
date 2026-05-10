@@ -4,6 +4,7 @@ import { ReporteService } from '../services/ReporteService';
 import { ReporteRepository } from '../repositories/ReporteRepository';
 import { authMiddleware } from '../middlewares/auth';
 import { upload } from '../middlewares/upload';
+import express, { Request, Response, NextFunction } from 'express';
 import {
   validarCrearReporte,
   validarFiltros,
@@ -17,6 +18,14 @@ const repo = new ReporteRepository();
 const service = new ReporteService(repo);
 const ctrl = new ReporteController(service);
 
+const manejarBody = (req: Request, res: Response, next: NextFunction) => {
+  if (req.is('application/json')) {
+    express.json()(req, res, next);
+  } else {
+    upload.array('fotos', 5)(req, res, next);
+  }
+};
+
 /**
  * Todas las rutas requieren autenticación (token del Gateway).
  *
@@ -27,24 +36,13 @@ const ctrl = new ReporteController(service);
  * PATCH  /reportes/:id/estado → Cambiar estado
  * DELETE /reportes/:id       → Eliminar
  */
-router.post(
-  '/',
-  authMiddleware,
-  upload.array('fotos', 5),
-  validarCrearReporte,
-  ctrl.crear
-);
+router.post('/', authMiddleware, manejarBody, validarCrearReporte, ctrl.crear);
 
 router.get('/', authMiddleware, validarFiltros, ctrl.listar);
 
 router.get('/:id', authMiddleware, ctrl.obtener);
 
-router.put(
-  '/:id',
-  authMiddleware,
-  upload.array('fotos', 5),
-  ctrl.editar
-);
+router.put('/:id', authMiddleware, manejarBody, ctrl.editar);
 
 router.patch('/:id/estado', authMiddleware, validarCambiarEstado, ctrl.cambiarEstado);
 
