@@ -11,25 +11,52 @@ export interface EventoReporteCreado {
   reporteId: string;
   tipo: string;
   nombreMascota: string;
-  especie: string;  
+  especie: string;
   color: string;
   tamanio: string;
   ubicacionLatitud: number;
   ubicacionLongitud: number;
   direccionReferencia?: string;
+  codigoChip?: string;
   fechaPublicacion: string;
   usuarioId: string;
 }
 
+/**
+ * Patrón Singleton — MensajeriaService.
+ *
+ * Garantiza que exista una única instancia de la conexión a RabbitMQ
+ * durante todo el ciclo de vida de la aplicación. Esto evita abrir
+ * múltiples conexiones al broker, lo que podría causar pérdida de
+ * mensajes o agotamiento de recursos.
+ *
+ * Uso:
+ *   const servicio = MensajeriaService.getInstance();
+ *   await servicio.publicar(EVENTOS.REPORTE_CREADO, payload);
+ */
 export class MensajeriaService {
+  private static instancia: MensajeriaService;
+
   private connection: ChannelModel | null = null;
   private channel: Channel | null = null;
   private readonly exchange: string;
   private readonly url: string;
 
-  constructor() {
+  // Constructor privado — impide instanciación directa con new
+  private constructor() {
     this.url = process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672';
     this.exchange = process.env.RABBITMQ_EXCHANGE ?? 'sanos_y_salvos_events';
+  }
+
+  /**
+   * Retorna la única instancia de MensajeriaService.
+   * La crea si aún no existe.
+   */
+  public static getInstance(): MensajeriaService {
+    if (!MensajeriaService.instancia) {
+      MensajeriaService.instancia = new MensajeriaService();
+    }
+    return MensajeriaService.instancia;
   }
 
   async conectar(): Promise<void> {
@@ -63,4 +90,5 @@ export class MensajeriaService {
   }
 }
 
-export const mensajeriaService = new MensajeriaService();
+// Exportar la instancia única para uso en toda la aplicación
+export const mensajeriaService = MensajeriaService.getInstance();
