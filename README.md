@@ -151,10 +151,41 @@ npm run dev
 
 ---
 
-## Patrones implementados
+## Patrones de diseño implementados
 
-| Patrón | Ubicación | Propósito |
-|---|---|---|
-| **Repository** | `IReporteRepository` / `ReporteRepository` | Desacoplar lógica de negocio del acceso a datos |
-| **Factory Method** | `ReporteFactory` | Instanciar `Reporte` según tipo (PERDIDA / ENCONTRADA) |
-| **Circuit Breaker** | A implementar en el API Gateway (librería Opossum) | Resiliencia ante caída del microservicio |
+### 1. Factory Method
+**Ubicación:** `src/factories/ReporteFactory.ts`
+
+Centraliza la creación de objetos `Reporte` según el tipo indicado (PERDIDA o ENCONTRADA). La lógica de instanciación está encapsulada en el factory, por lo que el servicio y el controlador no necesitan conocer las diferencias entre subtipos. Para agregar un nuevo tipo de reporte en el futuro (ej. ADOPCION) basta con añadir un nuevo método estático sin modificar el resto del código.
+
+```typescript
+// Uso
+const reporte = ReporteFactory.crear(TipoReporte.PERDIDA, datos);
+```
+
+---
+
+### 2. Repository Pattern
+**Ubicación:** `src/repositories/IReporteRepository.ts` + `src/repositories/ReporteRepository.ts`
+
+Define un contrato (interfaz) entre la lógica de negocio y el acceso a datos. `ReporteService` depende únicamente de `IReporteRepository`, no de la implementación concreta con TypeORM. Esto permite cambiar el ORM o la base de datos sin tocar el servicio, y facilita las pruebas unitarias mediante mocks.
+
+```typescript
+// El servicio depende de la interfaz, no de la implementación
+constructor(private readonly repo: IReporteRepository) {}
+```
+
+---
+
+### 3. Singleton
+**Ubicación:** `src/services/MensajeriaService.ts`
+
+Garantiza que exista una única instancia de la conexión a RabbitMQ durante todo el ciclo de vida de la aplicación. El constructor es privado, impidiendo la creación directa con `new`. El acceso se realiza únicamente a través del método estático `getInstance()`, que crea la instancia solo si no existe.
+
+Esto evita abrir múltiples conexiones al broker, lo que podría causar pérdida de mensajes o agotamiento de recursos.
+
+```typescript
+// Uso correcto — siempre retorna la misma instancia
+const servicio = MensajeriaService.getInstance();
+await servicio.publicar(EVENTOS.REPORTE_CREADO, payload);
+```
