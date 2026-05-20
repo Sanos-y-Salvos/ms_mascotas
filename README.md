@@ -189,3 +189,16 @@ Esto evita abrir múltiples conexiones al broker, lo que podría causar pérdida
 const servicio = MensajeriaService.getInstance();
 await servicio.publicar(EVENTOS.REPORTE_CREADO, payload);
 ```
+### Ejemplo de inserción de datos(JSON)
+* **POST/reportes**
+{
+  "nombreMascota": "Firulais",
+  "especie": "PERRO",
+  "color": "Marrón con manchas blancas",
+  "tamanio": "MEDIANO",
+  "tipo": "PERDIDA",
+  "estado": "EN_BUSQUEDA",
+  "ubicacionLatitud": -36.826992,
+  "ubicacionLongitud": -73.049771,
+  "usuarioId": "d3b07384-d113-4956-a5d2-4c5b145ba7c7"
+}
