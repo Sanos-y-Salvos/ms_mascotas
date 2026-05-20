@@ -55,7 +55,7 @@ ms-mascotas/
 |---|---|---|
 | `id` | UUID | Identificador único (PK) |
 | `nombreMascota` | string | Nombre de la mascota |
-| `raza` | string | Raza del animal |
+| `especie` | PERRO / GATO / AVE / CONEJO / HAMSTER / REPTIL / OTRO | Especie del animal |
 | `color` | string | Color o descripción de pelaje |
 | `tamanio` | PEQUEÑO / MEDIANO / GRANDE | Talla estandarizada |
 | `tipo` | PERDIDA / ENCONTRADA | Tipo de reporte (Factory Method) |
@@ -98,7 +98,7 @@ Todas las rutas requieren `Authorization: Bearer <JWT>` (token emitido por MS-01
 |---|---|
 | `tipo` | `PERDIDA`, `ENCONTRADA` |
 | `estado` | `EN_BUSQUEDA`, `RESUELTO`, `ABANDONADO`, `OCULTO` |
-| `raza` | Texto libre (búsqueda parcial) |
+| `especie` | `PERRO`, `GATO`, `AVE`, `CONEJO`, `HAMSTER`, `REPTIL`, `OTRO` |
 | `color` | Texto libre (búsqueda parcial) |
 | `usuarioId` | UUID del usuario |
 
@@ -106,7 +106,7 @@ Todas las rutas requieren `Authorization: Bearer <JWT>` (token emitido por MS-01
 
 ```
 nombreMascota     string   requerido
-raza              string   requerido
+especie           PERRO / GATO / AVE / CONEJO / HAMSTER / REPTIL / OTRO   requerido
 color             string   requerido
 tamanio           PEQUEÑO | MEDIANO | GRANDE   requerido
 tipo              PERDIDA | ENCONTRADA          requerido
