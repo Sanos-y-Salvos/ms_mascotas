@@ -20,6 +20,7 @@ export interface EventoReporteCreado {
   codigoChip?: string;
   fechaPublicacion: string;
   usuarioId: string;
+  fotoUrl?: string;
 }
 
 /**
