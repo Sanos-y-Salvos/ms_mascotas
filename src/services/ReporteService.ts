@@ -18,17 +18,12 @@ export interface CrearReporteDTO extends DatosReporteBase {
 export class ReporteService {
   constructor(private readonly repo: IReporteRepository) {}
 
-  /**
-   * Crea un nuevo reporte usando el Factory Method según el tipo indicado.
-   * Luego publica el evento para que MS-04 y MS-05 reaccionen.
-   */
   async crearReporte(
     datos: CrearReporteDTO,
     archivos: Express.Multer.File[]
   ): Promise<Reporte> {
     const datosReporte = ReporteFactory.crear(datos.tipo, datos);
 
-    // Asociar fotos si las hay
     if (archivos.length > 0) {
       datosReporte.fotos = archivos.map((archivo) => {
         const foto = new ReporteFoto();
@@ -40,7 +35,6 @@ export class ReporteService {
 
     const reporte = await this.repo.crear(datosReporte);
 
-    // Publicar evento para MS-04 (Localización) y MS-05 (Matching)
     const evento: EventoReporteCreado = {
       reporteId: reporte.id,
       tipo: reporte.tipo,
@@ -51,9 +45,11 @@ export class ReporteService {
       ubicacionLatitud: reporte.ubicacionLatitud,
       ubicacionLongitud: reporte.ubicacionLongitud,
       direccionReferencia: reporte.direccionReferencia,
+      codigoChip: reporte.codigoChip,           // ← ya estaba en la entidad
       fechaPublicacion: reporte.fechaPublicacion.toISOString(),
       usuarioId: reporte.usuarioId,
       fotoUrl: reporte.fotos?.[0]?.urlRelativa ?? undefined,
+      descripcion: reporte.descripcion ?? undefined,  // ← nuevo
     };
     await mensajeriaService.publicar(EVENTOS.REPORTE_CREADO, evento);
 
@@ -70,10 +66,6 @@ export class ReporteService {
     return this.repo.listar(filtros);
   }
 
-  /**
-   * Actualiza datos del reporte.
-   * Si cambia la ubicación, publica evento para que MS-04 actualice el pin.
-   */
   async editarReporte(
     id: string,
     datos: Partial<CrearReporteDTO>,
@@ -86,7 +78,6 @@ export class ReporteService {
     const actualizado = await this.repo.actualizar(id, datos);
     if (!actualizado) throw createError(500, 'Error al actualizar el reporte');
 
-    // Si cambiaron las coordenadas, notificar al MS-04
     const cambioUbicacion =
       datos.ubicacionLatitud !== undefined || datos.ubicacionLongitud !== undefined;
 
@@ -99,7 +90,6 @@ export class ReporteService {
       });
     }
 
-    // Agregar nuevas fotos si se subieron
     if (archivos.length > 0) {
       const fotoRepo = AppDataSource.getRepository(ReporteFoto);
       const nuevasFotos = archivos.map((archivo) => {
@@ -144,7 +134,6 @@ export class ReporteService {
 
     if (!esModerador) {
       this.verificarPropietario(existente, usuarioId);
-      // El usuario solo puede eliminar reportes resueltos o abandonados
       const eliminables = [EstadoReporte.RESUELTO, EstadoReporte.ABANDONADO];
       if (!eliminables.includes(existente.estado)) {
         throw createError(403, 'Solo puedes eliminar reportes resueltos o abandonados');
@@ -157,7 +146,6 @@ export class ReporteService {
     await mensajeriaService.publicar(EVENTOS.REPORTE_ELIMINADO, { reporteId: id });
   }
 
-  /** Verifica que el usuario sea el dueño del reporte, o lanza 403. */
   private verificarPropietario(reporte: Reporte, usuarioId: string): void {
     if (reporte.usuarioId !== usuarioId) {
       throw createError(403, 'No tienes permiso para modificar este reporte');

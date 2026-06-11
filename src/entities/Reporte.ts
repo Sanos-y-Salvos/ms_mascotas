@@ -82,6 +82,9 @@ export class Reporte {
   @Column({ name: 'usuario_id' })
   usuarioId!: string;
 
+  @Column({ length: 100, nullable: true, name: 'codigo_chip' })
+  codigoChip?: string;
+
   @OneToMany(() => ReporteFoto, (foto) => foto.reporte, {
     cascade: true,
     eager: true,
