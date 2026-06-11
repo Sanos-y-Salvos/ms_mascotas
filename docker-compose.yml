@@ -71,3 +71,4 @@ volumes:
 networks:
   sanos-y-salvos-net:
     driver: bridge
+    name: mascotas_sanos-y-salvos-net

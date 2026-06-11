@@ -53,6 +53,7 @@ export class ReporteService {
       direccionReferencia: reporte.direccionReferencia,
       fechaPublicacion: reporte.fechaPublicacion.toISOString(),
       usuarioId: reporte.usuarioId,
+      fotoUrl: reporte.fotos?.[0]?.urlRelativa ?? undefined,
     };
     await mensajeriaService.publicar(EVENTOS.REPORTE_CREADO, evento);
 
