@@ -13,6 +13,7 @@ import { FiltrosReporte } from '../repositories/IReporteRepository';
 
 export interface CrearReporteDTO extends DatosReporteBase {
   tipo: TipoReporte;
+  codigoChip?: string;
 }
 
 export class ReporteService {
@@ -45,11 +46,11 @@ export class ReporteService {
       ubicacionLatitud: reporte.ubicacionLatitud,
       ubicacionLongitud: reporte.ubicacionLongitud,
       direccionReferencia: reporte.direccionReferencia,
-      codigoChip: reporte.codigoChip,           // ← ya estaba en la entidad
+      codigoChip: reporte.codigoChip,
       fechaPublicacion: reporte.fechaPublicacion.toISOString(),
       usuarioId: reporte.usuarioId,
       fotoUrl: reporte.fotos?.[0]?.urlRelativa ?? undefined,
-      descripcion: reporte.descripcion ?? undefined,  // ← nuevo
+      descripcion: reporte.descripcion ?? undefined,
     };
     await mensajeriaService.publicar(EVENTOS.REPORTE_CREADO, evento);
 

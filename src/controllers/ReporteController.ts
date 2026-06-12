@@ -24,6 +24,7 @@ export class ReporteController {
           ubicacionLongitud: parseFloat(req.body.ubicacionLongitud),
           direccionReferencia: req.body.direccionReferencia,
           descripcion: req.body.descripcion,
+          codigoChip: req.body.codigoChip,
           usuarioId: req.usuario!.sub,
         },
         archivos
