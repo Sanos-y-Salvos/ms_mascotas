@@ -5,7 +5,7 @@ services:
     container_name: ms-mascotas
     restart: unless-stopped
     ports:
-      - '3003:3003'
+      - '3003:3003' # Expuesto temporalmente si necesitas hacer pruebas directas sin el Gateway
     environment:
       PORT: 3003
       NODE_ENV: development
@@ -14,7 +14,8 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: ms_mascotas
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      # Ahora apunta al RabbitMQ que vive en la red compartida
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672 
       RABBITMQ_EXCHANGE: sanos_y_salvos_events
       JWT_SECRET: supersecreto_cambiar_en_produccion
       UPLOAD_DIR: uploads
@@ -24,10 +25,10 @@ services:
     depends_on:
       postgres-mascotas:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      # Eliminamos el depends_on de rabbitmq, porque se asume que ya lo encendiste en la carpeta infraestructura
     networks:
-      - sanos-y-salvos-net
+      - db-mascotas-net     # Red privada para su BD
+      - sanos-y-salvos-net  # Red pública para Gateway y RabbitMQ
 
   postgres-mascotas:
     image: postgres:15-alpine
@@ -38,7 +39,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ms_mascotas
     ports:
-      - '5432:5432'
+      - '5432:5432' # Expuesto a tu PC por si usas DBeaver/pgAdmin
     volumes:
       - pg_mascotas_data:/var/lib/postgresql/data
     healthcheck:
@@ -47,22 +48,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - sanos-y-salvos-net
-
-  rabbitmq:
-    image: rabbitmq:3.12-management-alpine
-    container_name: rabbitmq
-    restart: unless-stopped
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    healthcheck:
-      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - sanos-y-salvos-net
+      - db-mascotas-net # ¡Nota esto! La BD NO está en la red pública. Está aislada y segura.
 
 volumes:
   pg_mascotas_data:
@@ -70,5 +56,8 @@ volumes:
 
 networks:
   sanos-y-salvos-net:
-    driver: bridge
+    external: true
     name: mascotas_sanos-y-salvos-net
+  db-mascotas-net:
+    driver: bridge
+    name: db-mascotas-net # Red local exclusiva para este microservicio
