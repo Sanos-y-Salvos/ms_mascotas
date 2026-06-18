@@ -44,8 +44,15 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
 
   const token = header.split(' ')[1];
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET ?? '') as JwtPayload;
-    req.usuario = payload;
+    // ms-auth firma sus tokens con los claims `id`/`role`, no `sub`/`rol`.
+    // Aceptamos ambas formas para no romper si el emisor cambia.
+    const raw = jwt.verify(token, process.env.JWT_SECRET ?? '') as Record<string, unknown>;
+    req.usuario = {
+      sub: (raw.sub ?? raw.id) as string,
+      rol: (raw.rol ?? raw.role) as string,
+      iat: raw.iat as number,
+      exp: raw.exp as number,
+    };
     next();
   } catch {
     next(createError(401, 'Token inválido o expirado'));
