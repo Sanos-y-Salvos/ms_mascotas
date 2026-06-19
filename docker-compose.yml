@@ -1,6 +1,6 @@
 services:
   ms-mascotas:
-    image: lucianobc/ms-mascotas:latest
+    #image: lucianobc/ms-mascotas:latest
     build: .
     container_name: ms-mascotas
     restart: unless-stopped
