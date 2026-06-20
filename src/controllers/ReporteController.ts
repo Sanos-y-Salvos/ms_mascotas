@@ -107,6 +107,16 @@ export class ReporteController {
     }
   };
 
+  /** GET /reportes/estadisticas */
+  estadisticas = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.service.getEstadisticas();
+      res.json({ data });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   private validarRequest(req: Request): void {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {

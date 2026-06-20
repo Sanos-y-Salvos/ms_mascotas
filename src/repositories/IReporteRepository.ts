@@ -19,4 +19,5 @@ export interface IReporteRepository {
   actualizar(id: string, datos: Partial<Reporte>): Promise<Reporte | null>;
   cambiarEstado(id: string, estado: EstadoReporte): Promise<Reporte | null>;
   eliminar(id: string): Promise<boolean>;
+  getEstadisticas(): Promise<any>;
 }

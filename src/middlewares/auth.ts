@@ -65,3 +65,12 @@ export function soloModerador(req: Request, _res: Response, next: NextFunction):
   }
   next();
 }
+
+// Acepta roles en minúscula (ms-auth) y mayúscula (legacy) para administración
+export function soloAdmin(req: Request, _res: Response, next: NextFunction): void {
+  const rol = req.usuario?.rol?.toLowerCase();
+  if (!rol || !['moderador', 'administrador', 'superadmin'].includes(rol)) {
+    return next(createError(403, 'Acceso restringido a administradores'));
+  }
+  next();
+}

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ReporteController } from '../controllers/ReporteController';
 import { ReporteService } from '../services/ReporteService';
 import { ReporteRepository } from '../repositories/ReporteRepository';
-import { authMiddleware } from '../middlewares/auth';
+import { authMiddleware, soloAdmin } from '../middlewares/auth';
 import { upload } from '../middlewares/upload';
 import express, { Request, Response, NextFunction } from 'express';
 import {
@@ -37,6 +37,8 @@ const manejarBody = (req: Request, res: Response, next: NextFunction) => {
  * DELETE /reportes/:id       → Eliminar
  */
 router.post('/', authMiddleware, manejarBody, validarCrearReporte, ctrl.crear);
+
+router.get('/estadisticas', authMiddleware, soloAdmin, ctrl.estadisticas);
 
 router.get('/', authMiddleware, validarFiltros, ctrl.listar);
 

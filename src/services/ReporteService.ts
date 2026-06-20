@@ -147,6 +147,10 @@ export class ReporteService {
     await mensajeriaService.publicar(EVENTOS.REPORTE_ELIMINADO, { reporteId: id });
   }
 
+  async getEstadisticas() {
+    return this.repo.getEstadisticas();
+  }
+
   private verificarPropietario(reporte: Reporte, usuarioId: string): void {
     if (reporte.usuarioId !== usuarioId) {
       throw createError(403, 'No tienes permiso para modificar este reporte');
