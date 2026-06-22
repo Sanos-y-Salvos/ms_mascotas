@@ -45,10 +45,17 @@ const makeReporte = (overrides: Partial<Reporte> = {}): Reporte => ({
   ...overrides,
 } as Reporte);
 
+const makePaginado = (reportes: Reporte[] = [makeReporte()]) => ({
+  data: reportes,
+  total: reportes.length,
+  page: 1,
+  totalPages: 1,
+});
+
 const makeRepo = (overrides: Partial<IReporteRepository> = {}): jest.Mocked<IReporteRepository> => ({
   crear: jest.fn().mockResolvedValue(makeReporte()),
   buscarPorId: jest.fn().mockResolvedValue(makeReporte()),
-  listar: jest.fn().mockResolvedValue([makeReporte()]),
+  listar: jest.fn().mockResolvedValue(makePaginado()),
   actualizar: jest.fn().mockResolvedValue(makeReporte()),
   cambiarEstado: jest.fn().mockResolvedValue(makeReporte()),
   eliminar: jest.fn().mockResolvedValue(true),
@@ -313,7 +320,7 @@ describe('HU-05 — Listar y filtrar reportes', () => {
     const resultado = await service.listarReportes({});
 
     expect(repo.listar).toHaveBeenCalledWith({});
-    expect(resultado).toHaveLength(1);
+    expect(resultado.data).toHaveLength(1);
   });
 
   it('pasa los filtros correctamente al repositorio', async () => {

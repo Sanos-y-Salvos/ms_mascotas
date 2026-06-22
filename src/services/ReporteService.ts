@@ -9,7 +9,7 @@ import {
   EVENTOS,
   EventoReporteCreado,
 } from './MensajeriaService';
-import { FiltrosReporte } from '../repositories/IReporteRepository';
+import { FiltrosReporte, PaginadoReporte } from '../repositories/IReporteRepository';
 
 export interface CrearReporteDTO extends DatosReporteBase {
   tipo: TipoReporte;
@@ -63,7 +63,7 @@ export class ReporteService {
     return reporte;
   }
 
-  async listarReportes(filtros: FiltrosReporte): Promise<Reporte[]> {
+  async listarReportes(filtros: FiltrosReporte): Promise<PaginadoReporte> {
     return this.repo.listar(filtros);
   }
 

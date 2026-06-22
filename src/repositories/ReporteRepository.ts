@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { Reporte, EstadoReporte, TipoReporte } from '../entities/Reporte';
-import { FiltrosReporte, IReporteRepository } from './IReporteRepository';
+import { FiltrosReporte, IReporteRepository, PaginadoReporte } from './IReporteRepository';
 
 /**
  * Implementación concreta de IReporteRepository usando TypeORM.
@@ -23,26 +23,33 @@ export class ReporteRepository implements IReporteRepository {
     return this.repo.findOne({ where: { id }, relations: ['fotos'] });
   }
 
-  async listar(filtros: FiltrosReporte = {}): Promise<Reporte[]> {
+  async listar(filtros: FiltrosReporte = {}): Promise<PaginadoReporte> {
+    const { page = 1, limit = 12, ...rest } = filtros;
     const query = this.repo.createQueryBuilder('r').leftJoinAndSelect('r.fotos', 'fotos');
 
-    if (filtros.tipo) {
-      query.andWhere('r.tipo = :tipo', { tipo: filtros.tipo });
+    if (rest.tipo) {
+      query.andWhere('r.tipo = :tipo', { tipo: rest.tipo });
     }
-    if (filtros.estado) {
-      query.andWhere('r.estado = :estado', { estado: filtros.estado });
+    if (rest.estado) {
+      query.andWhere('r.estado = :estado', { estado: rest.estado });
     }
-    if (filtros.especie) {
-      query.andWhere('r.especie = :especie', { especie: filtros.especie });
+    if (rest.especie) {
+      query.andWhere('r.especie = :especie', { especie: rest.especie });
     }
-    if (filtros.color) {
-      query.andWhere('LOWER(r.color) LIKE LOWER(:color)', { color: `%${filtros.color}%` });
+    if (rest.color) {
+      query.andWhere('LOWER(r.color) LIKE LOWER(:color)', { color: `%${rest.color}%` });
     }
-    if (filtros.usuarioId) {
-      query.andWhere('r.usuarioId = :usuarioId', { usuarioId: filtros.usuarioId });
+    if (rest.usuarioId) {
+      query.andWhere('r.usuarioId = :usuarioId', { usuarioId: rest.usuarioId });
     }
 
-    return query.orderBy('r.fechaPublicacion', 'DESC').getMany();
+    const [data, total] = await query
+      .orderBy('r.fechaPublicacion', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data, total, page, totalPages: Math.ceil(total / limit) };
   }
 
   async actualizar(id: string, datos: Partial<Reporte>): Promise<Reporte | null> {

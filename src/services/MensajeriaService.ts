@@ -33,6 +33,7 @@ export class MensajeriaService {
   private channel: Channel | null = null;
   private readonly exchange: string;
   private readonly url: string;
+  private reconectando = false;
 
   private constructor() {
     this.url = process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672';
@@ -52,9 +53,24 @@ export class MensajeriaService {
       this.channel = await this.connection.createChannel();
       await this.channel.assertExchange(this.exchange, 'topic', { durable: true });
       console.log('[RabbitMQ] Conexión establecida con exchange:', this.exchange);
+
+      this.connection.on('error', () => this.reconectar());
+      this.connection.on('close', () => this.reconectar());
     } catch (error) {
       console.error('[RabbitMQ] Error al conectar:', error);
+      setTimeout(() => this.reconectar(), 5000);
     }
+  }
+
+  private async reconectar(): Promise<void> {
+    if (this.reconectando) return;
+    this.reconectando = true;
+    this.channel = null;
+    this.connection = null;
+    console.warn('[RabbitMQ] Conexión perdida, reconectando en 5s...');
+    await new Promise((r) => setTimeout(r, 5000));
+    this.reconectando = false;
+    await this.conectar();
   }
 
   async publicar(routingKey: string, payload: object): Promise<void> {
@@ -68,6 +84,7 @@ export class MensajeriaService {
       console.log(`[RabbitMQ] Evento publicado → ${routingKey}`);
     } catch (error) {
       console.error('[RabbitMQ] Error al publicar evento:', error);
+      this.channel = null;
     }
   }
 

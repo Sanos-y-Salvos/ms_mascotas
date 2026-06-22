@@ -16,6 +16,7 @@ export enum TipoReporte {
 
 export enum EstadoReporte {
   EN_BUSQUEDA = 'EN_BUSQUEDA',
+  EMPAREJADO = 'EMPAREJADO',
   RESUELTO = 'RESUELTO',
   ABANDONADO = 'ABANDONADO',
   OCULTO = 'OCULTO',

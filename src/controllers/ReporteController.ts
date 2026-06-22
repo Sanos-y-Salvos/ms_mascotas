@@ -40,14 +40,23 @@ export class ReporteController {
   listar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       this.validarRequest(req);
-      const reportes = await this.service.listarReportes({
+      const page  = parseInt(req.query.page  as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 12;
+      const resultado = await this.service.listarReportes({
         tipo: req.query.tipo as TipoReporte | undefined,
         estado: req.query.estado as EstadoReporte | undefined,
         especie: req.query.especie as EspecieMascota | undefined,
         color: req.query.color as string | undefined,
         usuarioId: req.query.usuarioId as string | undefined,
+        page,
+        limit,
       });
-      res.json({ data: reportes });
+      res.json({
+        data: resultado.data,
+        total: resultado.total,
+        page: resultado.page,
+        totalPages: resultado.totalPages,
+      });
     } catch (err) {
       next(err);
     }

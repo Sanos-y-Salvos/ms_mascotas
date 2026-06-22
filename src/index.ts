@@ -8,6 +8,7 @@ dotenv.config();
 
 import { AppDataSource } from './config/database';
 import { mensajeriaService } from './services/MensajeriaService';
+import { iniciarConsumidor } from './services/ConsumidorService';
 import reportesRouter from './routes/reportes.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
@@ -42,6 +43,7 @@ async function bootstrap(): Promise<void> {
     console.log('[DB] Conexión a PostgreSQL establecida');
 
     await mensajeriaService.conectar();
+    iniciarConsumidor().catch((e) => console.error('[Consumidor] Error al iniciar:', e));
 
     app.listen(PORT, () => {
       console.log(`[MS-Mascotas] Servidor corriendo en http://localhost:${PORT}`);
