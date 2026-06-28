@@ -65,6 +65,7 @@ ms-mascotas/
 | `ubicacionLongitud` | float8 | Longitud del lugar de pérdida/encuentro |
 | `direccionReferencia` | string? | Dirección legible (opcional) |
 | `descripcion` | string? | Señas particulares adicionales |
+| `codigoChip` | string? | Código del microchip de identificación (opcional) |
 | `usuarioId` | UUID | Propietario del reporte |
 | `fotos` | ReporteFoto[] | Imágenes adjuntas |
 
@@ -148,6 +149,8 @@ npm run dev
 
 > La red `sanos-y-salvos-net` debe existir previamente:  
 > `docker network create sanos-y-salvos-net`
+
+> **ms-mascotas es el proveedor de RabbitMQ para todo el stack.** `ms-localizacion` y `ms-matching` dependen del RabbitMQ que levanta este servicio. Deben iniciarse después de que `ms-mascotas` esté corriendo.
 
 ---
 
