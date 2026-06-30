@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1782785362166" clover="3.2.0">
-  <project timestamp="1782785362166" name="All files">
+<coverage generated="1782824787222" clover="3.2.0">
+  <project timestamp="1782824787222" name="All files">
     <metrics statements="72" coveredstatements="72" conditionals="47" coveredconditionals="47" methods="14" coveredmethods="14" elements="133" coveredelements="133" complexity="0" loc="72" ncloc="72" packages="3" files="3" classes="3"/>
     <package name="config">
       <metrics statements="5" coveredstatements="5" conditionals="10" coveredconditionals="10" methods="0" coveredmethods="0"/>
-      <file name="database.ts" path="D:\Escritorio\Test\ms_mascotas\src\config\database.ts">
+      <file name="database.ts" path="C:\Users\benja\Desktop\Clases\FullStack3\ms_mascotas\src\config\database.ts">
         <metrics statements="5" coveredstatements="5" conditionals="10" coveredconditionals="10" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -15,7 +15,7 @@
     </package>
     <package name="factories">
       <metrics statements="8" coveredstatements="8" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
-      <file name="ReporteFactory.ts" path="D:\Escritorio\Test\ms_mascotas\src\factories\ReporteFactory.ts">
+      <file name="ReporteFactory.ts" path="C:\Users\benja\Desktop\Clases\FullStack3\ms_mascotas\src\factories\ReporteFactory.ts">
         <metrics statements="8" coveredstatements="8" conditionals="3" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="1" count="2" type="stmt"/>
         <line num="29" count="2" type="stmt"/>
@@ -29,7 +29,7 @@
     </package>
     <package name="services">
       <metrics statements="59" coveredstatements="59" conditionals="34" coveredconditionals="34" methods="11" coveredmethods="11"/>
-      <file name="ReporteService.ts" path="D:\Escritorio\Test\ms_mascotas\src\services\ReporteService.ts">
+      <file name="ReporteService.ts" path="C:\Users\benja\Desktop\Clases\FullStack3\ms_mascotas\src\services\ReporteService.ts">
         <metrics statements="59" coveredstatements="59" conditionals="34" coveredconditionals="34" methods="11" coveredmethods="11"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
