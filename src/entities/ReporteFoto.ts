@@ -22,7 +22,7 @@ export class ReporteFoto {
 
   @CreateDateColumn({ name: 'fecha_subida' })
   fechaSubida!: Date;
-
+  /** @istanbul ignore next */
   @ManyToOne(() => Reporte, (reporte) => reporte.fotos, {
     onDelete: 'CASCADE',
   })

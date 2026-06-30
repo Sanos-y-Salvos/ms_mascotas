@@ -70,11 +70,12 @@ export class ReporteService {
   async editarReporte(
     id: string,
     datos: Partial<CrearReporteDTO>,
-    usuarioId: string,
+    usuarioId: string | undefined,
     archivos: Express.Multer.File[]
   ): Promise<Reporte> {
+    if (!usuarioId) throw createError(401, 'Usuario no autenticado');
     const existente = await this.obtenerReporte(id);
-    this.verificarPropietario(existente, usuarioId);
+    this.verificarPropietario(existente, usuarioId!);
 
     const actualizado = await this.repo.actualizar(id, datos);
     if (!actualizado) throw createError(500, 'Error al actualizar el reporte');
@@ -110,13 +111,14 @@ export class ReporteService {
   async cambiarEstado(
     id: string,
     estado: EstadoReporte,
-    usuarioId: string,
+    usuarioId: string | undefined,
     esModerador: boolean
   ): Promise<Reporte> {
     const existente = await this.obtenerReporte(id);
+    if (!usuarioId) throw createError(401, 'Usuario no autenticado');
 
     if (!esModerador) {
-      this.verificarPropietario(existente, usuarioId);
+      this.verificarPropietario(existente, usuarioId!);
     }
 
     const actualizado = await this.repo.cambiarEstado(id, estado);
@@ -130,11 +132,12 @@ export class ReporteService {
     return actualizado;
   }
 
-  async eliminarReporte(id: string, usuarioId: string, esModerador: boolean): Promise<void> {
+  async eliminarReporte(id: string, usuarioId: string | undefined, esModerador: boolean): Promise<void> {
     const existente = await this.obtenerReporte(id);
+    if (!usuarioId) throw createError(401, 'Usuario no autenticado');
 
     if (!esModerador) {
-      this.verificarPropietario(existente, usuarioId);
+      this.verificarPropietario(existente, usuarioId!);
       const eliminables = [EstadoReporte.RESUELTO, EstadoReporte.ABANDONADO];
       if (!eliminables.includes(existente.estado)) {
         throw createError(403, 'Solo puedes eliminar reportes resueltos o abandonados');

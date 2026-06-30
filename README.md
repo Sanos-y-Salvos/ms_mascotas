@@ -115,6 +115,7 @@ ubicacionLatitud  float   requerido  (-90 a 90)
 ubicacionLongitud float   requerido  (-180 a 180)
 direccionReferencia string  opcional
 descripcion       string   opcional
+codigoChip        string   opcional
 fotos             File[]   opcional (máx. 5, JPEG/PNG/WebP, 5 MB c/u)
 ```
 
@@ -205,3 +206,6 @@ await servicio.publicar(EVENTOS.REPORTE_CREADO, payload);
   "ubicacionLongitud": -73.049771,
   "usuarioId": "d3b07384-d113-4956-a5d2-4c5b145ba7c7"
 }
+
+### Covertura Pruebas
+![alt text](image.png)

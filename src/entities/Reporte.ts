@@ -85,7 +85,7 @@ export class Reporte {
 
   @Column({ length: 100, nullable: true, name: 'codigo_chip' })
   codigoChip?: string;
-
+  /** @istanbul ignore next */
   @OneToMany(() => ReporteFoto, (foto) => foto.reporte, {
     cascade: true,
     eager: true,

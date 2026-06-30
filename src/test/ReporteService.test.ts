@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { ReporteService } from '../services/ReporteService';
+import { AppDataSource } from '../config/database';
 import { IReporteRepository } from '../repositories/IReporteRepository';
 import { mensajeriaService } from '../services/MensajeriaService';
 import {
@@ -9,6 +10,7 @@ import {
   EspecieMascota,
   TamanioMascota,
 } from '../entities/Reporte';
+import { ReporteFoto } from '../entities/ReporteFoto';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
@@ -22,11 +24,28 @@ jest.mock('../../src/services/MensajeriaService', () => ({
   },
 }));
 
-jest.mock('../../src/config/database', () => ({
-  AppDataSource: { getRepository: jest.fn() },
-}));
+jest.mock('../../src/config/database');
+
+const mockedAppDataSource = AppDataSource as jest.Mocked<typeof AppDataSource>;
+const mockFotoRepo = {
+  create: jest.fn((data) => data),
+  save: jest.fn().mockResolvedValue(undefined),
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockedAppDataSource.getRepository.mockImplementation((entity) => {
+    if (entity === ReporteFoto) {
+      // Forzamos el tipo a 'any' para que TypeScript acepte nuestro mock simple
+      return mockFotoRepo as any;
+    }
+    // Obtenemos el nombre de la entidad de forma segura
+    const entityName = typeof entity === 'function' ? entity.name : entity;
+    throw new Error(`Unexpected entity in getRepository mock: ${entityName}`);
+  });
+});
 
 const makeReporte = (overrides: Partial<Reporte> = {}): Reporte => ({
   id: 'reporte-uuid-1',
@@ -160,6 +179,51 @@ describe('HU-02 — Editar reporte', () => {
     ).rejects.toMatchObject({ status: 403 });
   });
 
+  it('lanza 401 si no hay usuario autenticado', async () => {
+    const repo = makeRepo();
+    const service = new ReporteService(repo);
+
+    await expect(service.editarReporte('id', {}, undefined, [])).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('lanza 404 si el reporte a editar no existe', async () => {
+    const repo = makeRepo({
+      buscarPorId: jest.fn().mockResolvedValue(null),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.editarReporte('no-existe', { color: 'negro' }, 'usuario-uuid-1', [])
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('guarda nuevas fotos si se proporcionan archivos', async () => {
+    const repo = makeRepo();
+    const service = new ReporteService(repo);
+    const archivo = { filename: 'nueva-foto.jpg' } as Express.Multer.File;
+
+    await service.editarReporte('reporte-uuid-1', {}, 'usuario-uuid-1', [archivo]);
+
+    expect(mockFotoRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+      nombreArchivo: 'nueva-foto.jpg',
+    }));
+    expect(mockFotoRepo.save).toHaveBeenCalled();
+  });
+
+  it('lanza 500 si el repositorio falla al actualizar', async () => {
+    const repo = makeRepo({
+      actualizar: jest.fn().mockResolvedValue(null),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.editarReporte('reporte-uuid-1', { color: 'negro' }, 'usuario-uuid-1', [])
+    ).rejects.toMatchObject({
+      status: 500,
+      message: 'Error al actualizar el reporte',
+    });
+  });
+
   it('publica REPORTE_ACTUALIZADO solo si cambia la ubicacion', async () => {
     const repo = makeRepo();
     const service = new ReporteService(repo);
@@ -231,6 +295,38 @@ describe('HU-03 — Cambiar estado', () => {
       service.cambiarEstado('reporte-uuid-1', EstadoReporte.RESUELTO, 'otro-usuario', false)
     ).rejects.toMatchObject({ status: 403 });
   });
+
+  it('lanza 401 si no hay usuario autenticado', async () => {
+    const repo = makeRepo();
+    const service = new ReporteService(repo);
+
+    await expect(service.cambiarEstado('id', EstadoReporte.RESUELTO, undefined, false)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('lanza 404 si el reporte a cambiar de estado no existe', async () => {
+    const repo = makeRepo({
+      buscarPorId: jest.fn().mockResolvedValue(null),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.cambiarEstado('no-existe', EstadoReporte.RESUELTO, 'usuario-uuid-1', false)
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('lanza 500 si el repositorio falla al cambiar estado', async () => {
+    const repo = makeRepo({
+      cambiarEstado: jest.fn().mockResolvedValue(null),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.cambiarEstado('reporte-uuid-1', EstadoReporte.RESUELTO, 'usuario-uuid-1', false)
+    ).rejects.toMatchObject({
+      status: 500,
+      message: 'Error al cambiar estado',
+    });
+  });
 });
 
 // ─── HU-04: Eliminar reporte ─────────────────────────────────────────────────
@@ -293,6 +389,41 @@ describe('HU-04 — Eliminar reporte', () => {
     expect(repo.eliminar).toHaveBeenCalledWith('reporte-uuid-1');
   });
 
+  it('lanza 401 si no hay usuario autenticado', async () => {
+    const repo = makeRepo();
+    const service = new ReporteService(repo);
+
+    await expect(service.eliminarReporte('id', undefined, false)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('lanza 404 si el reporte a eliminar no existe', async () => {
+    const repo = makeRepo({
+      buscarPorId: jest.fn().mockResolvedValue(null),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.eliminarReporte('no-existe', 'usuario-uuid-1', true)
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('lanza 500 si el repositorio falla al eliminar', async () => {
+    const repo = makeRepo({
+      buscarPorId: jest.fn().mockResolvedValue(
+        makeReporte({ estado: EstadoReporte.RESUELTO })
+      ),
+      eliminar: jest.fn().mockResolvedValue(false),
+    });
+    const service = new ReporteService(repo);
+
+    await expect(
+      service.eliminarReporte('reporte-uuid-1', 'usuario-uuid-1', false)
+    ).rejects.toMatchObject({
+      status: 500,
+      message: 'Error al eliminar el reporte',
+    });
+  });
+
   it('publica REPORTE_ELIMINADO al eliminar', async () => {
     const repo = makeRepo({
       buscarPorId: jest.fn().mockResolvedValue(
@@ -333,6 +464,16 @@ describe('HU-05 — Listar y filtrar reportes', () => {
     expect(repo.listar).toHaveBeenCalledWith(filtros);
   });
 
+  it('obtiene un reporte por ID correctamente', async () => {
+    const repo = makeRepo();
+    const service = new ReporteService(repo);
+
+    const resultado = await service.obtenerReporte('reporte-uuid-1');
+
+    expect(repo.buscarPorId).toHaveBeenCalledWith('reporte-uuid-1');
+    expect(resultado.id).toBe('reporte-uuid-1');
+  });
+
   it('lanza 404 si se busca un reporte inexistente', async () => {
     const repo = makeRepo({
       buscarPorId: jest.fn().mockResolvedValue(null),
@@ -340,5 +481,20 @@ describe('HU-05 — Listar y filtrar reportes', () => {
     const service = new ReporteService(repo);
 
     await expect(service.obtenerReporte('no-existe')).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+describe('HU-XX — Estadísticas', () => {
+  it('delega la obtención de estadísticas al repositorio', async () => {
+    const estadisticasMock = { total: 10, porTipo: { PERDIDA: 5, ENCONTRADA: 5 } };
+    const repo = makeRepo({
+      getEstadisticas: jest.fn().mockResolvedValue(estadisticasMock),
+    });
+    const service = new ReporteService(repo);
+
+    const resultado = await service.getEstadisticas();
+
+    expect(repo.getEstadisticas).toHaveBeenCalled();
+    expect(resultado).toEqual(estadisticasMock);
   });
 });
