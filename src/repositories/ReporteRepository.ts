@@ -74,7 +74,7 @@ export class ReporteRepository implements IReporteRepository {
     const especies = ['PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO'];
     const tamanios = ['PEQUEÑO', 'MEDIANO', 'GRANDE'];
 
-    const [total, por_tipo_raw, por_estado_raw, por_especie_raw, por_tamanio_raw, por_mes, por_mes_tipo, por_mes_especie] =
+    const [total, por_tipo_raw, por_estado_raw, por_especie_raw, por_tamanio_raw, por_mes, por_mes_tipo, por_mes_especie, por_mes_estado, por_mes_tamanio] =
       await Promise.all([
         db.query('SELECT COUNT(*)::int AS count FROM reportes'),
         db.query('SELECT tipo, COUNT(*)::int AS count FROM reportes GROUP BY tipo'),
@@ -84,6 +84,8 @@ export class ReporteRepository implements IReporteRepository {
         db.query(`SELECT TO_CHAR(DATE_TRUNC('month', fecha_publicacion), 'YYYY-MM') AS mes, COUNT(*)::int AS count FROM reportes GROUP BY mes ORDER BY mes`),
         db.query(`SELECT TO_CHAR(DATE_TRUNC('month', fecha_publicacion), 'YYYY-MM') AS mes, tipo, COUNT(*)::int AS count FROM reportes GROUP BY mes, tipo ORDER BY mes`),
         db.query(`SELECT TO_CHAR(DATE_TRUNC('month', fecha_publicacion), 'YYYY-MM') AS mes, especie, COUNT(*)::int AS count FROM reportes GROUP BY mes, especie ORDER BY mes`),
+        db.query(`SELECT TO_CHAR(DATE_TRUNC('month', fecha_publicacion), 'YYYY-MM') AS mes, estado, COUNT(*)::int AS count FROM reportes GROUP BY mes, estado ORDER BY mes`),
+        db.query(`SELECT TO_CHAR(DATE_TRUNC('month', fecha_publicacion), 'YYYY-MM') AS mes, tamanio, COUNT(*)::int AS count FROM reportes GROUP BY mes, tamanio ORDER BY mes`),
       ]);
 
     const tipoMap    = Object.fromEntries(por_tipo_raw.map((r: any)    => [r.tipo,    r.count]));
@@ -100,6 +102,8 @@ export class ReporteRepository implements IReporteRepository {
       por_mes,
       por_mes_tipo,
       por_mes_especie,
+      por_mes_estado,
+      por_mes_tamanio,
     };
   }
 }
